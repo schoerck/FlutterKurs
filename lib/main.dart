@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quiz_app/answers.dart';
 import 'package:quiz_app/question.dart';
 
 //void main() {
@@ -19,19 +20,35 @@ class _MyAppState extends State<MyApp> {
   //das stateless widget myappstate erbt die funktionalität von dem stateful widget myapp
   var _questionindex = 0;
 
+  final questions = const [
+    {
+      'questiontext': 'Was ist deine Lieblingsfarbe',
+      'answers': ['Schwarz', 'Rot', 'Blau', 'Magenta']
+    },
+    {
+      'questiontext': 'Was ist dein Lieblingstier',
+      'answers': ['Löwe', 'Tiger', 'Bär', 'Elefant']
+    },
+    {
+      'questiontext': 'Wer ist dein Lieblingsdozent',
+      'answers': ['Hän', 'Näd', 'Rol', 'Chapo']
+    }
+  ];
+
   //void, da die Funktion nur ausführt und nichts zurückgibt
   void _answerquestion() {
     setState(() {
       _questionindex++; //setstate verlangt eine anonyme methode (in diesem Fall soll der state je nach questionindex geändert werden)
     });
     print(_questionindex);
-  }
 
-  var questions = [
-    //Liste von Daten wird in eckige Klammern geschrieben (in diesem Fall alle Fragen)
-    'Was ist deine Lieblingsfarbe?',
-    'Was ist dein Lieblingstier?',
-  ];
+    if (_questionindex < questions.length) {
+      print('Wir haben noch ein paar Fragen');
+    }
+    else{
+
+    }
+  }
 
   //override (Decorator) -> build Methode muss überschrieben werden, ansonsten würde die klassische build Methode return null zurückgeben! (@override kann auch weggelassen werden)
   @override
@@ -43,26 +60,20 @@ class _MyAppState extends State<MyApp> {
           //title und body stellen named arguments dar
           title: Text('Meine erste App'),
         ),
-        body: Column(
+        body: _questionindex<questions.length ? Column(
           children: <Widget>[
-            Question( //jedes mal wenn Question aufgerufen wurd, wird ein neues Objekt (mit dem Konstruktor) von Question angelegt
-              questions[_questionindex],
+            Question(
+              //jedes mal wenn Question aufgerufen wurd, wird ein neues Objekt (mit dem Konstruktor) von Question angelegt
+              questions[_questionindex][
+                  'questiontext'], //Syntax: aus der var questions, an der position questionindex, mit dem keyword questionword
             ), //.elementAt(n) zeigt auf das n'te Element in der Liste questions //oder neu: [n]
-            RaisedButton(
-                child: Text('Antwort 1'),
-                onPressed:
-                    _answerquestion), //Klammern der Methode werden weggelassen, da nichts übergeben wird (es wird die Methode an sich übergeben und nicht das Resultat der Methode)
-            RaisedButton(
-                child: Text('Antwort 2'),
-                onPressed:
-                    _answerquestion), //Pointer der auf die answerquestionmethode zweigt
-            RaisedButton(
-                child: Text('Antwort 3'),
-                onPressed: () => print(
-                    'Haha ich bin eine anonyme Funktion !') //Anonyme Funktionen werden direkt in den Code geschrieben mit () => ...  //oder (){...}
-                ),
+            ...(questions[_questionindex]['answers'] as List<String>)
+                .map((answer) {
+              return Answer(_answerquestion,
+                  answer); //zuerst wird auf answers zugegriffen-> ['answers'], dart weiß nicht das hier eine Liste vorliegt, daher as List <String>. die .map funktion ruft eine methode auf -> hier anonyme methode, die eine antwort aus der Liste übergeben bekommt und ein Answer Objekt returned. .map erzeugt nur eine Iterable, wir brauchen die Objekte als Liste-> daher .toList()  . durch die ... wandeln wir die Liste in einzelne Objekte um
+            }).toList()
           ],
-        ),
+        ) : Center(child: Text('Du bist fertig!'),),
       ),
     );
   }
